@@ -30,8 +30,7 @@ acme__tiny__key: '{{ acme__tiny__cert_path }}.key'
 acme__tiny__request: '{{ acme__tiny__cert_path }}.csr'
 acme__tiny__certificate: '{{ acme__tiny__cert_path }}.crt'
 
-acme__tiny__letsencrypt_certs:
-  - file: 'intermediate.crt'
-  - file: 'ca.crt'
+acme__tiny__letsencrypt_certs: '{{ app__acme__tiny__letsencrypt_certs |
+                            d(default__acme__tiny__letsencrypt_certs) }}'
 
 
