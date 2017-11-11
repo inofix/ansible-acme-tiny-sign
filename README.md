@@ -19,6 +19,7 @@ Why we do not use one of the existing roles?
 * The role does not expose the private key file to the unpriviledged acme user
 * The cert-request might be done on a remote machine via inofix.acme-tiny-setup such that the private key is not even on the host requesting the certificate.
 
+
 Status
 ------
 
