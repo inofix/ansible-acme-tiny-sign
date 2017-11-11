@@ -58,22 +58,22 @@ Requirements
 Role Variables
 --------------
 
-* app\_\_acme\_\_tiny\_\_user - optional, default='acme'
-* app\_\_acme\_\_tiny\_\_group - optional, default='acme'
-* app\_\_acme\_\_tiny\_\_config\_dir - optional, default='/etc/ssl/acme-tiny'
-* app\_\_acme\_\_tiny\_\_account\_key - optional, auto
-* app\_\_acme\_\_tiny\_\_challenge\_dir - optional, default='/var/www/acme-challenge'
-* app\_\_acme\_\_tiny\_\_domain - optional, default='example.com'
-* app\_\_acme\_\_tiny\_\_cert\_name - optional, auto
-* app\_\_acme\_\_tiny\_\_cert\_dir - optional, auto
-* app\_\_acme\_\_tiny\_\_key - optional, auto
-* app\_\_acme\_\_tiny\_\_request - optional, auto
+* app\_\_acme\_\_user - optional, default='acme'
+* app\_\_acme\_\_group - optional, default='acme'
+* app\_\_acme\_\_config\_dir - optional, default='/etc/ssl/acme-tiny'
+* app\_\_acme\_\_account\_key - optional, auto
+* app\_\_acme\_\_challenge\_dir - optional, default='/var/www/acme-challenge'
+* app\_\_acme\_\_domain - optional, default='example.com'
+* app\_\_acme\_\_cert\_name - optional, auto
+* app\_\_acme\_\_cert\_dir - optional, auto
+* app\_\_acme\_\_key - optional, auto
+* app\_\_acme\_\_request - optional, auto
 
 Dependencies
 ------------
 
 * inofix.acme-tiny-install
-* inofix.acme-tiny-setup
+* inofix.acme-setup
 
 Example Playbook
 ----------------

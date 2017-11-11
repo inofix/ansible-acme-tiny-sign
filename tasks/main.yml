@@ -4,15 +4,15 @@
 - name: 'Create an empty (or just touch) cert user "acme" is able to write'
   file:
     state: touch
-    path: '{{ acme__tiny__certificate }}'
-    owner: '{{ acme__tiny__user }}'
-    group: '{{ acme__tiny__group }}'
+    path: '{{ acme__certificate }}'
+    owner: '{{ acme__user }}'
+    group: '{{ acme__group }}'
     mode: '0644'
 
 - name: 'Run acme-tiny'
   become: True
-  become_user: '{{ acme__tiny__user }}'
-  shell: 'acme-tiny --account-key {{ acme__tiny__account_key }} --csr {{ acme__tiny__request }} --acme-dir {{ acme__tiny__challenge_dir }} > {{ acme__tiny__certificate }}'
+  become_user: '{{ acme__user }}'
+  shell: 'acme-tiny --account-key {{ acme__account_key }} --csr {{ acme__request }} --acme-dir {{ acme__challenge_dir }} > {{ acme__certificate }}'
   register: acme_tiny__register_certificate
   failed_when: False
 
@@ -26,54 +26,54 @@
 - name: 'Create a consumable cert copy for the system'
   copy:
     remote_src: True
-    src: '{{ acme__tiny__certificate }}'
-    dest: '{{ acme__tiny__cert_dir }}/{{ acme__tiny__cert_name }}.crt'
-    owner: '{{ acme__tiny__user }}'
-    group: '{{ acme__tiny__os__cert_group }}'
+    src: '{{ acme__certificate }}'
+    dest: '{{ acme__cert_dir }}/{{ acme__cert_name }}.crt'
+    owner: '{{ acme__user }}'
+    group: '{{ acme__os__cert_group }}'
     mode: '0644'
   when: acme_tiny__register_certificate | changed
 
 - name: 'Create an empty (or just touch) chain file "acme" is able to write'
   file:
-    path: '{{ acme__tiny__cert_dir }}/{{ acme__tiny__cert_name }}_chain.crt'
+    path: '{{ acme__cert_dir }}/{{ acme__cert_name }}_chain.crt'
     state: touch
-    owner: '{{ acme__tiny__user }}'
-    group: '{{ acme__tiny__os__cert_group }}'
+    owner: '{{ acme__user }}'
+    group: '{{ acme__os__cert_group }}'
     mode: '0644'
   when: acme_tiny__register_certificate | changed
 
 - name: 'Merge certificate chain'
   become: True
-  become_user: '{{ acme__tiny__user }}'
-  shell: 'cat {{ acme__tiny__certificate }} {{ acme__tiny__config_dir }}/{{ acme__tiny__letsencrypt_certs.0.file }} {{ acme__tiny__config_dir }}/{{ acme__tiny__letsencrypt_certs.1.file }} > {{ acme__tiny__cert_dir }}/{{ acme__tiny__cert_name }}_chain.crt'
+  become_user: '{{ acme__user }}'
+  shell: 'cat {{ acme__certificate }} {{ acme__config_dir }}/{{ acme__letsencrypt_certs.0.file }} {{ acme__config_dir }}/{{ acme__letsencrypt_certs.1.file }} > {{ acme__cert_dir }}/{{ acme__cert_name }}_chain.crt'
   when: acme_tiny__register_certificate | changed
 
 # If no key is available, this means that the key is on a separate host and
 # that host must organize its cert chain after catching the cert here.
 - name: 'Test if a private key is available'
   stat:
-    path: '{{ acme__tiny__key }}'
+    path: '{{ acme__key }}'
   register: acme_tiny__key
 
 - name: 'Create a consumer key file'
   copy:
     remote_src: True
-    src: '{{ acme__tiny__key }}'
-    dest: '{{ acme__tiny__cert_dir }}/{{ acme__tiny__cert_name }}.key'
+    src: '{{ acme__key }}'
+    dest: '{{ acme__cert_dir }}/{{ acme__cert_name }}.key'
     owner: 'root'
-    group: '{{ acme__tiny__os__cert_group }}'
+    group: '{{ acme__os__cert_group }}'
     mode: '0640'
   when: ( acme_tiny__register_certificate | changed ) and ( acme_tiny__key.stat.isreg is defined and acme_tiny__key.stat.isreg )
 
 - name: 'Merge the consumer key/cert file'
-  shell: 'umask 077 && cat {{ acme__tiny__key }} {{ acme__tiny__certificate }} > {{ acme__tiny__cert_dir }}/{{ acme__tiny__cert_name }}_keycert.pem'
+  shell: 'umask 077 && cat {{ acme__key }} {{ acme__certificate }} > {{ acme__cert_dir }}/{{ acme__cert_name }}_keycert.pem'
   when: ( acme_tiny__register_certificate | changed ) and ( acme_tiny__key.stat.isreg is defined and acme_tiny__key.stat.isreg )
 
 - name: 'Fix permissions of the key/cert pem'
   file:
-    path: '{{ acme__tiny__cert_dir }}/{{ acme__tiny__cert_name }}_keycert.pem'
+    path: '{{ acme__cert_dir }}/{{ acme__cert_name }}_keycert.pem'
     owner: 'root'
-    group: '{{ acme__tiny__os__cert_group }}'
+    group: '{{ acme__os__cert_group }}'
     mode: '0640'
   when: ( acme_tiny__register_certificate | changed ) and ( acme_tiny__key.stat.isreg is defined and acme_tiny__key.stat.isreg )
 
