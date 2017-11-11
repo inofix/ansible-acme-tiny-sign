@@ -20,4 +20,4 @@ galaxy_info:
 
 dependencies:
   - inofix.acme-tiny-install
-  - inofix.acme-tiny-setup
+  - inofix.acme-setup
