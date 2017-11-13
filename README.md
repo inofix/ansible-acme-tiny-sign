@@ -1,4 +1,3 @@
-
 [![Travis CI](https://img.shields.io/travis/inofix/ansible-acme-tiny-sign.svg?style=flat)](http://travis-ci.org/inofix/ansible-acme-tiny-sign)
 
 
