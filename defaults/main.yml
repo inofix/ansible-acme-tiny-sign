@@ -7,8 +7,7 @@ default__acme__os__cert_group: 'ssl-cert'
 default__acme__user: 'acme'
 default__acme__group: 'acme'
 
-
-default__acme__config_dir: '/etc/ssl/acme-tiny'
+default__acme__config_dir: '/etc/ssl/acme'
 default__acme__account_key: '{{ default__acme__config_dir }}/account.key'
 
 default__acme__challenge_dir: '/var/www/acme-challenge'
