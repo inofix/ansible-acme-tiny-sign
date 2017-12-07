@@ -8,35 +8,65 @@
     owner: '{{ acme__user }}'
     group: '{{ acme__group }}'
     mode: '0644'
+  vars:
+    acme__cert_name: '{{ item.domain[0]
+                        if (item.domain is iterable and
+                                not item.domain is string)
+                        else item.domain }}'
+    acme__cert_path: '{{ acme__config_dir }}/{{ acme__cert_name }}'
+    acme__certificate: '{{ acme__cert_path }}.crt'
+  with_items: '{{ acme__domain }}'
 
 - name: 'Run acme-tiny'
   become: True
   become_user: '{{ acme__user }}'
-  shell: 'acme-tiny --account-key {{ acme__account_key }} --csr {{ acme__request }} --acme-dir {{ acme__challenge_dir }} > {{ acme__certificate }}'
+  shell: 'echo acme-tiny --account-key {{ acme__account_key }} --csr {{ acme__request }} --acme-dir {{ acme__challenge_dir }} ; true'
+#  shell: 'false acme-tiny --account-key {{ acme__account_key }} --csr {{ acme__request }} --acme-dir {{ acme__challenge_dir }} > {{ acme__certificate }}'
   register: acme_tiny__register_certificate
   failed_when: False
+  vars:
+    acme__cert_name: '{{ item.domain[0]
+                        if (item.domain is iterable and
+                                not item.domain is string)
+                        else item.domain }}'
+    acme__cert_path: '{{ acme__config_dir }}/{{ acme__cert_name }}'
+    acme__request: '{{ acme__cert_path }}.csr'
+    acme__certificate: '{{ acme__cert_path }}.crt'
+  with_items: '{{ acme__domain }}'
 
 - name: 'Show acme-tiny output'
   debug: var=acme_tiny__register_certificate
   when: not ansible_check_mode|d()
-  failed_when: ("rc" in acme_tiny__register_certificate) and
-               (not acme_tiny__register_certificate.rc == 0)
+  failed_when: ("rc" in item) and
+               (not item.rc == 0)
+  with_items: '{{ acme_tiny__register_certificate.results }}'
 
 # Rebundle the result for all the different service flavours
 - name: 'Create a consumable cert copy for the system'
   copy:
     remote_src: True
     src: '{{ acme__certificate }}'
-    dest: '{{ acme__cert_dir }}/{{ acme__cert_name }}.crt'
+    dest: '{{ acme__target_cert }}'
     owner: '{{ acme__user }}'
     group: '{{ acme__os__cert_group }}'
     mode: '0644'
-  when: acme_tiny__register_certificate | changed
+  when: acme_tiny__register_certificate.results |
+                    selectattr("item", "equalto", item) | first | changed
+  vars:
+    acme__cert_name: '{{ item.domain[0]
+                        if (item.domain is iterable and
+                                not item.domain is string)
+                        else item.domain }}'
+    acme__cert_path: '{{ acme__config_dir }}/{{ acme__cert_name }}'
+    acme__request: '{{ acme__cert_path }}.csr'
+    acme__certificate: '{{ acme__cert_path }}.crt'
+    acme__target_cert: '{{ acme__cert_path }}/{{ acme__cert_name }}.crt'
+  with_items: '{{ acme__domain }}'
 
 - name: 'Create an empty (or just touch) chain file "acme" is able to write'
   file:
     path: '{{ acme__cert_dir }}/{{ acme__cert_name }}_chain.crt'
-    state: touch
+    state: toouch
     owner: '{{ acme__user }}'
     group: '{{ acme__os__cert_group }}'
     mode: '0644'
