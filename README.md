@@ -68,6 +68,7 @@ Role Variables
 * app\_\_acme\_\_cert\_dir - optional, auto
 * app\_\_acme\_\_key - optional, auto
 * app\_\_acme\_\_request - optional, auto
+* fqdn - optional, default={{ ansible\_fqdn | d(inventory\_hostname ) }}
 
 Dependencies
 ------------
