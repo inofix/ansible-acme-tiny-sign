@@ -134,42 +134,43 @@
     acme__target_key: '{{ acme__cert_path }}/{{ acme__cert_name }}.key'
   with_items: '{{ acme__domain }}'
 
+## TODO this task is temp. disabled as the cronjob can not access the key (as 'acme')
+#- name: 'Merge the consumer key/cert file'
+#  shell: 'umask 077 && cat {{ acme__key }} {{ acme__certificate }} > {{ acme__target_pem }}'
+#  when: acme_tiny__register_certificate.results |
+#                selectattr("item", "equalto", item) | first | changed and
+#        acme_t_k_r.stat.isreg is defined and acme_t_k_r.stat.isreg
+#  vars:
+#    acme_t_k_r: '{{ acme_tiny__key.results |
+#                selectattr("item", "equalto", item) | first }}'
+#    acme__cert_name: '{{ item.domain[0]
+#                        if (item.domain is iterable and
+#                                not item.domain is string)
+#                        else item.domain }}'
+#    acme__cert_path: '{{ acme__config_dir }}/{{ acme__cert_name }}'
+#    acme__certificate: '{{ acme__cert_path }}.crt'
+#    acme__key: '{{ acme__cert_path }}.key'
+#    acme__target_pem: '{{ acme__cert_path }}/{{ acme__cert_name }}.pem'
+#  with_items: '{{ acme__domain }}'
 
-- name: 'Merge the consumer key/cert file'
-  shell: 'umask 077 && cat {{ acme__key }} {{ acme__certificate }} > {{ acme__target_pem }}'
-  when: acme_tiny__register_certificate.results |
-                selectattr("item", "equalto", item) | first | changed and
-        acme_t_k_r.stat.isreg is defined and acme_t_k_r.stat.isreg
-  vars:
-    acme_t_k_r: '{{ acme_tiny__key.results |
-                selectattr("item", "equalto", item) | first }}'
-    acme__cert_name: '{{ item.domain[0]
-                        if (item.domain is iterable and
-                                not item.domain is string)
-                        else item.domain }}'
-    acme__cert_path: '{{ acme__config_dir }}/{{ acme__cert_name }}'
-    acme__certificate: '{{ acme__cert_path }}.crt'
-    acme__key: '{{ acme__cert_path }}.key'
-    acme__target_pem: '{{ acme__cert_path }}/{{ acme__cert_name }}.pem'
-  with_items: '{{ acme__domain }}'
-
-- name: 'Fix permissions of the key/cert pem'
-  file:
-    path: '{{ acme__target_pem }}'
-    owner: 'root'
-    group: '{{ acme__os__cert_group }}'
-    mode: '0640'
-  when: acme_tiny__register_certificate.results |
-                selectattr("item", "equalto", item) | first | changed and
-        acme_t_k_r.stat.isreg is defined and acme_t_k_r.stat.isreg
-  vars:
-    acme_t_k_r: '{{ acme_tiny__key.results |
-                selectattr("item", "equalto", item) | first }}'
-    acme__cert_name: '{{ item.domain[0]
-                        if (item.domain is iterable and
-                                not item.domain is string)
-                        else item.domain }}'
-    acme__cert_path: '{{ acme__config_dir }}/{{ acme__cert_name }}'
-    acme__target_pem: '{{ acme__cert_path }}/{{ acme__cert_name }}.pem'
-  with_items: '{{ acme__domain }}'
+## TODO this task is temp. disabled as the cronjob can not access the key (as 'acme')
+#- name: 'Fix permissions of the key/cert pem'
+#  file:
+#    path: '{{ acme__target_pem }}'
+#    owner: 'root'
+#    group: '{{ acme__os__cert_group }}'
+#    mode: '0640'
+#  when: acme_tiny__register_certificate.results |
+#                selectattr("item", "equalto", item) | first | changed and
+#        acme_t_k_r.stat.isreg is defined and acme_t_k_r.stat.isreg
+#  vars:
+#    acme_t_k_r: '{{ acme_tiny__key.results |
+#                selectattr("item", "equalto", item) | first }}'
+#    acme__cert_name: '{{ item.domain[0]
+#                        if (item.domain is iterable and
+#                                not item.domain is string)
+#                        else item.domain }}'
+#    acme__cert_path: '{{ acme__config_dir }}/{{ acme__cert_name }}'
+#    acme__target_pem: '{{ acme__cert_path }}/{{ acme__cert_name }}.pem'
+#  with_items: '{{ acme__domain }}'
 
