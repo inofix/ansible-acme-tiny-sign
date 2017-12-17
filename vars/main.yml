@@ -1,6 +1,7 @@
 ---
 # vars file for acme-tiny-sign/
 
+acme__fqdn: '{{ fqdn | d(ansible_fqdn) | d(inventory_hostname) }}'
 acme__os__cert_group: '{{ app__acme__os__cert_group |
                             d(default__acme__os__cert_group) }}'
 
@@ -15,18 +16,9 @@ acme__challenge_dir: '{{ app__acme__challenge_dir |
 acme__account_key: '{{ app__acme__account_key |
                             d(default__acme__account_key) }}'
 
-acme__domain: '{{ app__acme__domain | d(default__acme__domain) }}'
-
-acme__cert_name: '{{ acme__domain[0]
-                            if (acme__domain is iterable and
-                            not acme__domain is string)
-                            else acme__domain }}'
-
-acme__cert_path: '{{ acme__config_dir }}/{{ acme__cert_name }}'
-acme__cert_dir: '{{ acme__cert_path }}'
-acme__key: '{{ acme__cert_path }}.key'
-acme__request: '{{ acme__cert_path }}.csr'
-acme__certificate: '{{ acme__cert_path }}.crt'
+acme__cs: '{{ app__acme__domain |
+                    selectattr("sign", "equalto", acme__fqdn) | list() }}'
+acme__domain: '{{ acme__cs | d(default__acme__domain) }}'
 
 acme__letsencrypt_certs: '{{ app__acme__letsencrypt_certs |
                             d(default__acme__letsencrypt_certs) }}'
