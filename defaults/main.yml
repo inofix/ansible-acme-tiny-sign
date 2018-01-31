@@ -1,11 +1,12 @@
 ---
 # defaults file for acme-tiny-sign/
 
-# default is debian-style..
-default__acme__os__cert_group: 'ssl-cert'
-
 default__acme__user: 'acme'
 default__acme__group: 'acme'
+
+# default the same as 'default__acme__group' for debian-style installations
+# 'ssl-cert' makes sense..
+default__acme__os__cert_group: '{{ default__acme__group }}'
 
 default__acme__config_dir: '/etc/ssl/acme'
 default__acme__account_key: '{{ default__acme__config_dir }}/account.key'
