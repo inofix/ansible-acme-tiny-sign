@@ -24,12 +24,6 @@ Status
 
 UNSTABLE! We are just migrating from zwischenloesung.acme-tiny.
 
-TODO
-----
-
-* Think about a way to use a proxy server and send around csr but no keys
-* Write a role to connect acme-tiny to different services directly
-
 Promise
 -------
 
