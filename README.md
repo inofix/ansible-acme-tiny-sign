@@ -6,23 +6,24 @@ Acme-Tiny
 
 This is an ansible role for getting digital certificates with "Let's Encrypt". It is highly influenced by this role: ganto.acme\_tiny. Many thanks [ganto](https://linuxmonk.ch/)!
 
-The role is meant to be run for a system accessible from the web. It will make the request with "Let's Encrypt" from an existing csr (see acme-tiny-setup), solve the challenge on the server's well-known webfolder and then put the resulting certificates in the openssl configuration directory.
+The role is meant to be run for a system accessible from the web. It will make the request with "Let's Encrypt" from an existing csr (see inofix.acme-request), solve the challenge on the server's well-known webfolder and then put the resulting certificates in the openssl configuration directory.
 
-The two other roles inofix.acme-tiny-install and inofix.acme-tiny-setup are required. The latter might be run on yet another remote host as to generate the private key and the cert-request.
+The two other roles, inofix.acme-tiny-install and inofix.acme-tiny-request,
+are required. The latter might be run on yet another remote host as to generate the private key and the cert-request.
 
 Why we do not use one of the existing roles?
 
 * For the first reason read the section "Promise" below. We need something reliable.
+* This role does not connect to the web as root, but as an unpriviledged user
+* This role does not expose the private key file to the unpriviledged acme user
+* This cert-request might be done on a remote machine via inofix.acme-tiny-setup such that the private key is not even on the host requesting the certificate.
 * This role will be used by [maestro](https://github.com/inofix/maestro) and must follow the logic used there. (Of course, the role can be used without maestro..)
-* The role does not connect to the web as root, but as an unpriviledged user
-* The role does not expose the private key file to the unpriviledged acme user
-* The cert-request might be done on a remote machine via inofix.acme-tiny-setup such that the private key is not even on the host requesting the certificate.
 
 
 Status
 ------
 
-UNSTABLE! We are just migrating from zwischenloesung.acme-tiny.
+preSTABLE (Feature-Freeze/RC)
 
 Promise
 -------
@@ -54,21 +55,20 @@ Role Variables
 
 * app\_\_acme\_\_user - optional, default='acme'
 * app\_\_acme\_\_group - optional, default='acme'
+* app\_\_acme\_\_os\_\_cert\_group - optional, default='{{ default\_\_acme\_\_group }}'
 * app\_\_acme\_\_config\_dir - optional, default='/etc/ssl/acme'
 * app\_\_acme\_\_account\_key - optional, auto
 * app\_\_acme\_\_challenge\_dir - optional, default='/var/www/acme-challenge'
-* app\_\_acme\_\_domain - optional, default='example.com'
-* app\_\_acme\_\_cert\_name - optional, auto
-* app\_\_acme\_\_cert\_dir - optional, auto
-* app\_\_acme\_\_key - optional, auto
-* app\_\_acme\_\_request - optional, auto
+* app\_\_acme\_\_domain - optional, default=[ {domain='example.com'} ]
 * fqdn - optional, default={{ ansible\_fqdn | d(inventory\_hostname ) }}
 
 Dependencies
 ------------
 
 * inofix.acme-tiny-install
-* inofix.acme-setup
+ * (inofix.acme-setup)
+* inofix.acme-request
+ * (inofix.acme-setup)
 
 Example Playbook
 ----------------
@@ -76,6 +76,9 @@ Example Playbook
     - hosts: servers
       roles:
          - inofix.acme-tiny-sign
+
+(See inofix.acme-setup)
+
 
 License
 -------
